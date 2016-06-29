@@ -6,20 +6,20 @@
 
 namespace ZF\Hal\Factory;
 
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 use ZF\Hal\View\HalJsonRenderer;
 
 class HalJsonRendererFactory implements FactoryInterface
 {
     /**
-     * @param  ServiceLocatorInterface $serviceLocator
+     * {@inheritdoc}
      * @return HalJsonRenderer
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        $helpers            = $serviceLocator->get('ViewHelperManager');
-        $apiProblemRenderer = $serviceLocator->get('ZF\ApiProblem\ApiProblemRenderer');
+        $helpers            = $container->get('ViewHelperManager');
+        $apiProblemRenderer = $container->get('ZF\ApiProblem\ApiProblemRenderer');
 
         $renderer = new HalJsonRenderer($apiProblemRenderer);
         $renderer->setHelperPluginManager($helpers);

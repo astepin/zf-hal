@@ -45,7 +45,7 @@ class HalJsonStrategy extends JsonStrategy
 
         if (!$model instanceof HalJsonModel) {
             // unrecognized model; do nothing
-            return;
+            return null;
         }
 
         // JsonModel found

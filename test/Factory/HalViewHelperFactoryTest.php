@@ -17,44 +17,56 @@ use ZF\Hal\RendererOptions;
 
 class HalViewHelperFactoryTest extends TestCase
 {
+    /**
+     * @var \Zend\ServiceManager\AbstractPluginManager
+     */
+    private $pluginManager;
+
     public function setupPluginManager($config = [])
     {
-        $services = new ServiceManager();
-
-        $services->setService('ZF\Hal\HalConfig', $config);
-
         if (isset($config['renderer']) && is_array($config['renderer'])) {
             $rendererOptions = new RendererOptions($config['renderer']);
         } else {
             $rendererOptions = new RendererOptions();
         }
-        $services->setService('ZF\Hal\RendererOptions', $rendererOptions);
 
-        $metadataMap = $this->getMock('ZF\Hal\Metadata\MetadataMap');
+        $metadataMap = $this->createMock('ZF\Hal\Metadata\MetadataMap');
         $metadataMap
             ->expects($this->once())
             ->method('getHydratorManager')
-            ->will($this->returnValue(new HydratorPluginManager()));
+            ->will($this->returnValue(new HydratorPluginManager(new ServiceManager())));
 
-        $services->setService('ZF\Hal\MetadataMap', $metadataMap);
-
-        $this->pluginManager = $this->getMock('Zend\ServiceManager\AbstractPluginManager');
+        $this->pluginManager = $this->getMockBuilder('Zend\ServiceManager\AbstractPluginManager')
+            ->disableOriginalConstructor()
+            ->getMock();
 
         $this->pluginManager
+            ->expects($this->at(0))
+            ->method('get')
+            ->with('ZF\Hal\HalConfig')
+            ->will($this->returnValue($config));
+        $this->pluginManager
             ->expects($this->at(1))
+            ->method('get')
+            ->with('ZF\Hal\RendererOptions')
+            ->will($this->returnValue($rendererOptions));
+        $this->pluginManager
+            ->expects($this->at(2))
+            ->method('get')
+            ->with('ZF\Hal\MetadataMap')
+            ->will($this->returnValue($metadataMap));
+
+        $this->pluginManager
+            ->expects($this->at(3))
             ->method('get')
             ->with('ServerUrl')
             ->will($this->returnValue(new ServerUrl()));
 
         $this->pluginManager
-            ->expects($this->at(2))
+            ->expects($this->at(4))
             ->method('get')
             ->with('Url')
             ->will($this->returnValue(new Url()));
-
-        $this->pluginManager
-            ->method('getServiceLocator')
-            ->will($this->returnValue($services));
     }
 
     public function testInstantiatesHalViewHelper()
@@ -62,7 +74,7 @@ class HalViewHelperFactoryTest extends TestCase
         $this->setupPluginManager();
 
         $factory = new HalViewHelperFactory();
-        $plugin = $factory->createService($this->pluginManager);
+        $plugin = $factory($this->pluginManager, '');
 
         $this->assertInstanceOf('ZF\Hal\Plugin\Hal', $plugin);
     }
@@ -81,7 +93,7 @@ class HalViewHelperFactoryTest extends TestCase
         $this->setupPluginManager($options);
 
         $factory = new HalViewHelperFactory();
-        $halPlugin = $factory->createService($this->pluginManager);
+        $halPlugin = $factory($this->pluginManager, '');
 
         $r = new ReflectionObject($halPlugin);
         $p = $r->getProperty('serverUrlHelper');

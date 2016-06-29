@@ -8,6 +8,7 @@ namespace ZFTest\Hal;
 
 use PHPUnit_Framework_TestCase as TestCase;
 use Zend\Hydrator\HydratorPluginManager;
+use Zend\ServiceManager\ServiceManager;
 use ZF\Hal\EntityHydratorManager;
 use ZF\Hal\Extractor\EntityExtractor;
 use ZF\Hal\Metadata\MetadataMap;
@@ -80,11 +81,7 @@ class ResourceFactoryTest extends TestCase
     {
         $object = new TestAsset\Entity('foo', 'Foo');
 
-        $callback = $this->getMock('stdClass', ['callback']);
-        $callback->expects($this->atLeastOnce())
-                 ->method('callback')
-                 ->with($this->equalTo($object))
-                 ->will($this->returnValue('callback-param'));
+        $callback = new \ZFTest\Hal\TestAsset\CallbackMock();
 
         $test = $this;
 
@@ -170,7 +167,7 @@ class ResourceFactoryTest extends TestCase
 
     private function getResourceFactory(MetadataMap $metadata)
     {
-        $hydratorPluginManager = new HydratorPluginManager();
+        $hydratorPluginManager = new HydratorPluginManager(new ServiceManager());
         $entityHydratorManager = new EntityHydratorManager($hydratorPluginManager, $metadata);
         $entityExtractor       = new EntityExtractor($entityHydratorManager);
 

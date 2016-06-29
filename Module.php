@@ -6,7 +6,9 @@
 
 namespace ZF\Hal;
 
+use Zend\EventManager\EventManager;
 use Zend\Mvc\MvcEvent;
+use Zend\View\Strategy\JsonStrategy;
 
 /**
  * ZF2 module
@@ -67,10 +69,15 @@ class Module
         }
 
         $services = $e->getTarget()->getServiceManager();
+        /** @var EventManager $events */
         $events   = $services->get('View')->getEventManager();
+
+
 
         // register at high priority, to "beat" normal json strategy registered
         // via view manager
-        $events->attach($services->get('ZF\Hal\JsonStrategy'), 200);
+        /** @var JsonStrategy $jsonStrategy */
+        $jsonStrategy = $services->get('ZF\Hal\JsonStrategy');
+        $jsonStrategy->attach($events);
     }
 }

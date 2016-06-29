@@ -22,7 +22,7 @@ class ModuleTest extends TestCase
 
     public function testOnRenderWhenMvcEventResultIsNotHalJsonModel()
     {
-        $mvcEvent = $this->getMock('Zend\Mvc\MvcEvent');
+        $mvcEvent = $this->createMock('Zend\Mvc\MvcEvent');
         $mvcEvent
             ->expects($this->once())
             ->method('getResult')
@@ -42,26 +42,22 @@ class ModuleTest extends TestCase
 
         $view = new View();
 
-        $eventManager = $this->getMock('Zend\EventManager\EventManager');
-        $eventManager
-            ->expects($this->once())
-            ->method('attach')
-            ->with($halJsonStrategy, 200);
+        $eventManager = $this->createMock('Zend\EventManager\EventManager');
+
 
         $view->setEventManager($eventManager);
 
         $serviceManager = new ServiceManager();
-        $serviceManager
-            ->setService('ZF\Hal\JsonStrategy', $halJsonStrategy)
-            ->setService('View', $view);
+        $serviceManager->setService('ZF\Hal\JsonStrategy', $halJsonStrategy);
+        $serviceManager->setService('View', $view);
 
-        $application = $this->getMock('Zend\Mvc\ApplicationInterface');
+        $application = $this->createMock('Zend\Mvc\ApplicationInterface');
         $application
             ->expects($this->once())
             ->method('getServiceManager')
             ->will($this->returnValue($serviceManager));
 
-        $mvcEvent = $this->getMock('Zend\Mvc\MvcEvent');
+        $mvcEvent = $this->createMock('Zend\Mvc\MvcEvent');
         $mvcEvent
             ->expects($this->at(0))
             ->method('getResult')
@@ -70,6 +66,10 @@ class ModuleTest extends TestCase
             ->expects($this->at(1))
             ->method('getTarget')
             ->will($this->returnValue($application));
+
+        $halJsonStrategy
+            ->expects($this->once())
+            ->method('attach');
 
         $this->module->onRender($mvcEvent);
     }

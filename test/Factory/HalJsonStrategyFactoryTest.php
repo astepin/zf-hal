@@ -23,7 +23,7 @@ class HalJsonStrategyFactoryTest extends TestCase
         $services->setService('ZF\Hal\JsonRenderer', $halJsonRenderer);
 
         $factory = new HalJsonStrategyFactory();
-        $strategy = $factory->createService($services);
+        $strategy = $factory($services, '');
 
         $this->assertInstanceOf('ZF\Hal\View\HalJsonStrategy', $strategy);
     }

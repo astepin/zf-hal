@@ -7,8 +7,6 @@
 namespace ZF\Hal;
 
 use Closure;
-use ZF\Hal\Collection;
-use ZF\Hal\Entity;
 use ZF\Hal\Extractor\EntityExtractor;
 use ZF\Hal\Exception;
 use ZF\Hal\Link\Link;
@@ -40,7 +38,7 @@ class ResourceFactory
     /**
      * Create a entity and/or collection based on a metadata map
      *
-     * @param  object $object
+     * @param  array|\Traversable|\Zend\Paginator\Paginator $object
      * @param  Metadata $metadata
      * @param  bool $renderEmbeddedEntities
      * @return Entity|Collection
@@ -89,7 +87,7 @@ class ResourceFactory
     }
 
     /**
-     * @param  object $object
+     * @param  array|\Traversable|\Zend\Paginator\Paginator $object
      * @param  Metadata $metadata
      * @return Collection
      */

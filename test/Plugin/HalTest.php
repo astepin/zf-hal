@@ -8,8 +8,8 @@ namespace ZFTest\Hal\Plugin;
 
 use PHPUnit_Framework_TestCase as TestCase;
 use ReflectionObject;
-use Zend\Mvc\Router\Http\TreeRouteStack;
-use Zend\Mvc\Router\Http\Segment;
+use Zend\Router\Http\TreeRouteStack;
+use Zend\Router\Http\Segment;
 use Zend\Mvc\MvcEvent;
 use Zend\Paginator\Adapter\ArrayAdapter as ArrayPaginator;
 use Zend\Paginator\Paginator;
@@ -97,7 +97,7 @@ class HalTest extends TestCase
         $event->setRouter($router);
         $router->setRequestUri(new Http('http://localhost.localdomain/resource'));
 
-        $controller = $this->controller = $this->getMock('Zend\Mvc\Controller\AbstractRestfulController');
+        $controller = $this->controller = $this->createMock('Zend\Mvc\Controller\AbstractRestfulController');
         $controller->expects($this->any())
             ->method('getEvent')
             ->will($this->returnValue($event));

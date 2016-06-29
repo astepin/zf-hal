@@ -6,8 +6,8 @@
 
 namespace ZF\Hal\Factory;
 
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 use ZF\Hal\Exception;
 use ZF\Hal\Extractor\LinkCollectionExtractor;
 use ZF\Hal\Extractor\LinkExtractor;
@@ -16,24 +16,24 @@ use ZF\Hal\Plugin;
 class HalViewHelperFactory implements FactoryInterface
 {
     /**
-     * @param  ServiceLocatorInterface $serviceLocator
+     * {@inheritdoc}
      * @return Plugin\Hal
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        $services        = $serviceLocator->getServiceLocator();
-        $halConfig       = $services->get('ZF\Hal\HalConfig');
+        $halConfig       = $container->get('ZF\Hal\HalConfig');
         /* @var $rendererOptions \ZF\Hal\RendererOptions */
-        $rendererOptions = $services->get('ZF\Hal\RendererOptions');
-        $metadataMap     = $services->get('ZF\Hal\MetadataMap');
+        $rendererOptions = $container->get('ZF\Hal\RendererOptions');
+        /** @var \ZF\Hal\Metadata\MetadataMap $metadataMap */
+        $metadataMap     = $container->get('ZF\Hal\MetadataMap');
         $hydrators       = $metadataMap->getHydratorManager();
 
-        $serverUrlHelper = $serviceLocator->get('ServerUrl');
+        $serverUrlHelper = $container->get('ServerUrl');
         if (isset($halConfig['options']['use_proxy'])) {
             $serverUrlHelper->setUseProxy($halConfig['options']['use_proxy']);
         }
 
-        $urlHelper = $serviceLocator->get('Url');
+        $urlHelper = $container->get('Url');
 
         $helper = new Plugin\Hal($hydrators);
         $helper

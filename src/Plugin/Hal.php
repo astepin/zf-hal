@@ -15,6 +15,7 @@ use Zend\Hydrator\ExtractionInterface;
 use Zend\Hydrator\HydratorPluginManager;
 use Zend\Mvc\Controller\Plugin\PluginInterface as ControllerPluginInterface;
 use Zend\Paginator\Paginator;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\DispatchableInterface;
 use Zend\View\Helper\AbstractHelper;
 use Zend\View\Helper\ServerUrl;
@@ -33,7 +34,6 @@ use ZF\Hal\Link\PaginationInjector;
 use ZF\Hal\Link\PaginationInjectorInterface;
 use ZF\Hal\Metadata\Metadata;
 use ZF\Hal\Metadata\MetadataMap;
-use ZF\Hal\Resource;
 use ZF\Hal\ResourceFactory;
 
 /**
@@ -108,7 +108,7 @@ class Hal extends AbstractHelper implements
     protected $urlHelper;
 
     /**
-     * @var LinkCollectionExtractor
+     * @var \ZF\Hal\Extractor\LinkCollectionExtractor
      */
     protected $linkCollectionExtractor;
 
@@ -125,7 +125,7 @@ class Hal extends AbstractHelper implements
     public function __construct(HydratorPluginManager $hydrators = null)
     {
         if (null === $hydrators) {
-            $hydrators = new HydratorPluginManager();
+            $hydrators = new HydratorPluginManager(new ServiceManager());
         }
         $this->hydrators = $hydrators;
     }
@@ -603,11 +603,12 @@ class Hal extends AbstractHelper implements
      * method.
      *
      * @deprecated
-     * @param  Resource $halResource
+     * @param  Entity $halResource
      * @param  bool $renderResource
+     * @param int $depth
      * @return array
      */
-    public function renderResource(Resource $halResource, $renderResource = true, $depth = 0)
+    public function renderResource(Entity $halResource, $renderResource = true, $depth = 0)
     {
         trigger_error(sprintf(
             'The method %s is deprecated; please use %s::renderEntity()',
@@ -806,7 +807,7 @@ class Hal extends AbstractHelper implements
      * Deprecated; please use createEntityFromMetadata().
      *
      * @deprecated
-     * @param  object $object
+     * @param  array|\Traversable|\Zend\Paginator\Paginator $object
      * @param  Metadata $metadata
      * @param  bool $renderEmbeddedEntities
      * @return Entity|Collection
@@ -824,7 +825,7 @@ class Hal extends AbstractHelper implements
     /**
      * Create a entity and/or collection based on a metadata map
      *
-     * @param  object $object
+     * @param  array|\Traversable|\Zend\Paginator\Paginator $object
      * @param  Metadata $metadata
      * @param  bool $renderEmbeddedEntities
      * @return Entity|Collection
@@ -924,7 +925,7 @@ class Hal extends AbstractHelper implements
     }
 
     /**
-     * @param  object $object
+     * @param  array|\Traversable|\Zend\Paginator\Paginator $object
      * @param  Metadata $metadata
      * @return Collection
      */
@@ -1167,22 +1168,23 @@ class Hal extends AbstractHelper implements
             return (null !== $r && false !== $r);
         };
 
-        $results = $this->getEventManager()->trigger(
+        $results = $this->getEventManager()->triggerUntil(
+            $callback,
             __FUNCTION__,
             $this,
-            $params,
-            $callback
+            $params
+
         );
 
         if ($results->stopped()) {
             return $results->last();
         }
 
-        $results = $this->getEventManager()->trigger(
+        $results = $this->getEventManager()->triggerUntil(
+            $callback,
             'getIdFromResource',
             $this,
-            $params,
-            $callback
+            $params
         );
 
         if ($results->stopped()) {

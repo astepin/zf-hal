@@ -14,7 +14,7 @@ interface PaginationInjectorInterface
      * Generate HAL links for a paginated collection
      *
      * @param  Collection $halCollection
-     * @return boolean|ApiProblem
+     * @return boolean|\ZF\ApiProblem\ApiProblem
      */
     public function injectPaginationLinks(Collection $halCollection);
 }

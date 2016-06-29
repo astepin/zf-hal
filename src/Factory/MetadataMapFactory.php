@@ -6,25 +6,25 @@
 
 namespace ZF\Hal\Factory;
 
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 use Zend\Hydrator\HydratorPluginManager;
 use ZF\Hal\Metadata;
 
 class MetadataMapFactory implements FactoryInterface
 {
     /**
-     * @param  ServiceLocatorInterface $serviceLocator
+     * {@inheritdoc}
      * @return Metadata\MetadataMap
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        $config = $serviceLocator->get('ZF\Hal\HalConfig');
+        $config = $container->get('ZF\Hal\HalConfig');
 
-        if ($serviceLocator->has('HydratorManager')) {
-            $hydrators = $serviceLocator->get('HydratorManager');
+        if ($container->has('HydratorManager')) {
+            $hydrators = $container->get('HydratorManager');
         } else {
-            $hydrators = new HydratorPluginManager();
+            $hydrators = new HydratorPluginManager($container);
         }
 
         $map = [];

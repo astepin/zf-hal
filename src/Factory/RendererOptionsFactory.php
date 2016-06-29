@@ -6,19 +6,19 @@
 
 namespace ZF\Hal\Factory;
 
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
 use ZF\Hal\RendererOptions;
 
 class RendererOptionsFactory implements FactoryInterface
 {
     /**
-     * @param  ServiceLocatorInterface $serviceLocator
+     * {@inheritdoc}
      * @return RendererOptions
      */
-    public function createService(ServiceLocatorInterface $serviceLocator)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        $config = $serviceLocator->get('ZF\Hal\HalConfig');
+        $config = $container->get('ZF\Hal\HalConfig');
 
         $rendererConfig = [];
         if (isset($config['renderer']) && is_array($config['renderer'])) {

@@ -26,14 +26,8 @@ class HalControllerPluginFactoryTest extends TestCase
         $services = new ServiceManager();
         $services->setService('ViewHelperManager', $viewHelperManager);
 
-        $pluginManager = $this->getMock('Zend\ServiceManager\AbstractPluginManager');
-        $pluginManager
-            ->expects($this->once())
-            ->method('getServiceLocator')
-            ->will($this->returnValue($services));
-
         $factory = new HalControllerPluginFactory();
-        $plugin = $factory->createService($pluginManager);
+        $plugin = $factory($services, '');
 
         $this->assertInstanceOf('ZF\Hal\Plugin\Hal', $plugin);
     }
